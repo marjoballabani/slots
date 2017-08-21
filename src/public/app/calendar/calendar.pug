@@ -3,10 +3,12 @@ div.row.main-container
         h3
             | Logs
             hr
-        div
+        div(
+            ng-repeat="event in $ctrl.history track by $index"
+        )
             label.status not avaliable
             label.id
-                |  595124c21ed92cb01f2d56e7
+                |  {{event}}
 
     div.col-md-8.calendar-container.col-md-push-1
         div(

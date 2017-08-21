@@ -10,15 +10,16 @@ angular
         uiCalendarConfig,
         ngDialog
     ) {
-        $scope.slots = DataFactory.slots
-        $scope.selectedEvent = {}
+        this.slots = DataFactory.slots
+        this.selectedEvent = {}
+        this.history = []
         this.events = []
 
         /**
          * Get slot list
          */
         DataFactory.getSlots((success) => {
-            $scope.slots = success.data
+            this.slots = success.data
             this.renderCalendar()
         }, (error) => {
             alert(error.data)
@@ -28,69 +29,50 @@ angular
          * Show event form
          */
         this.showForm = (date, jsEvent, view) => {
-            $scope.selectedEvent = date
-            ngDialog.open({
-                template: 'app/templates/form.html',
-                className: 'ngdialog-theme-default',
-                scope: $scope,
-                controller: ($scope) => {
-                    var a = $scope.changeStatus()
-                    console.log(a)
-                }
-            });
+            if (date.status) {
+                this.selectedEvent = date
+                ngDialog.open({
+                    template: 'app/templates/form.html',
+                    className: 'ngdialog-theme-default',
+                    scope: $scope,
+                    controller: () => {
+                        this.publish()
+                    }
+                });
+            }
         }
 
         /**
          * Change event status
          */
-        $scope.changeStatus = () => {
-            return $scope.slots.filter(function( event ) {
-                return event.id == $scope.selectedEvent.id;
-            })[0]
+        this.changeStatus = (id) => {
+            this.events[0].filter((event) => {
+                return event.id == id;
+            })[0].color = "#D84315";
+            uiCalendarConfig.calendars['calendar'].fullCalendar('removeEventSource', this.events[0]);
+            uiCalendarConfig.calendars['calendar'].fullCalendar('addEventSource', this.events[0]);
+            this.history.push(id)
         }
 
         /**
          * Generate events from slots data
          */
         this.renderCalendar = () => {
-            var avEvents = []
-            var notAvEvents = {
-                color: 'red',
-                events: []
-            }
-            $scope.slots.forEach((element) => {
+            var tempEvents = []
+            this.slots.forEach((element) => {
                 var temp = {
                     id: element.id,
                     status: element.available,
                     start: new Date(element.startTime),
                     end: new Date(element.endTime),
+                    color: element.available == true ? "#3F51B5" : "#D84315"
                 }
-                element.available == true ? avEvents.push(temp) : notAvEvents.events.push(temp)
+                tempEvents.push(temp)
             });
-            this.events.push(notAvEvents)
-            this.events.push(avEvents)
+            this.events.push(tempEvents)
             uiCalendarConfig.calendars['calendar'].fullCalendar('refetchEvents');
-            uiCalendarConfig.calendars['calendar'].fullCalendar('gotoDate', $scope.slots[0].startTime);
+            uiCalendarConfig.calendars['calendar'].fullCalendar('gotoDate', this.slots[0].startTime);
         }
-
-        /**
-         * Test PubNub publish
-         */
-        Pubnub.publish(
-            {
-                message: {
-                    text: 'Hello!'
-                },
-                channel: 'Channel-egrothab8'
-            },
-            function (status, response) {
-                if (status.error) {
-                    console.log(status)
-                } else {
-                    console.log("message Published")
-                }
-            }
-        );
 
         /**
          * Subscribe to channel
@@ -101,11 +83,33 @@ angular
         })
 
         /**
+         * Publish changes to other users
+         */
+        this.publish = () => {
+            Pubnub.publish(
+                {
+                    message: {
+                        id: this.selectedEvent.id
+                    },
+                    channel: 'Channel-egrothab8'
+                },
+                function (status) {
+                    if (status.error) {
+                        console.log(status)
+                    } else {
+                        console.log("message Published")
+                    }
+                }
+            );
+        }
+
+        /**
          * Do something when you get a message from PubNub
          */
-        $rootScope.$on(Pubnub.getMessageEventNameFor('Channel-egrothab8'), function (ngEvent, envelope) {
-            $scope.$apply(function () {
-                console.log(envelope.message)
+        $rootScope.$on(Pubnub.getMessageEventNameFor('Channel-egrothab8'), (ngEvent, envelope) => {
+            $scope.$apply(() => {
+                envelope.message.id
+                this.changeStatus(envelope.message.id)
             });
         });
 
