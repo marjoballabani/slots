@@ -1,6 +1,16 @@
-div.row
-    div.col-md-3
-        | events
+div.row.main-container
+    div.col-md-3.events-container.animated.fadeInLeft
+        h3
+            | Logs
+            hr
+        div
+            label.status not avaliable
+            label.id
+                |  595124c21ed92cb01f2d56e7
 
-    div.col-md-9
-        | {{$ctrl.slots}}
+    div.col-md-8.calendar-container.col-md-push-1
+        div(
+            ui-calendar="$ctrl.uiConfig.calendar"
+            ng-model="$ctrl.events",
+            calendar="calendar"
+        )

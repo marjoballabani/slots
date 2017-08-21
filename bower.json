@@ -28,6 +28,8 @@
     "bootstrap": "^3.3.7",
     "jquery": "^3.2.1",
     "pubnub": "^4.14.0",
-    "pubnub-angular": "^4.0.2"
+    "pubnub-angular": "^4.0.2",
+    "angular-ui-calendar": "^1.0.2",
+    "ng-dialog": "^1.4.0"
   }
 }

@@ -3,7 +3,9 @@ angular
     'ui.router',
     'commons',
     'angular.filter',
-    'pubnub.angular.service'
+    'pubnub.angular.service',
+    'ui.calendar',
+    'ngDialog'
 ])
 .config(function (
     $compileProvider
