@@ -1,0 +1,7 @@
+{
+  "validateIndentation": 4,
+  "requireLowerCaseAttributes": true,
+  "validateAttributeQuoteMarks": "\"",
+  "requireLineFeedAtFileEnd": true,
+  "requireLowerCaseTags": true
+}
