@@ -46,9 +46,11 @@ angular
          * Change event status
          */
         this.changeStatus = (id) => {
-            this.events[0].filter((event) => {
+            var tmp = this.events[0].filter((event) => {
                 return event.id == id;
-            })[0].color = "#D84315";
+            })[0]
+            tmp.color = "#D84315";
+            tmp.status = false;
             uiCalendarConfig.calendars['calendar'].fullCalendar('removeEventSource', this.events[0]);
             uiCalendarConfig.calendars['calendar'].fullCalendar('addEventSource', this.events[0]);
             this.history.push(id)
