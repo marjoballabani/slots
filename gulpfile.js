@@ -166,7 +166,7 @@ gulp.task('look', ['default', 'server'], () => {
 gulp.task('server', ['default'], () => {
     let port = process.env.PORT || 8081;
     statik({
-        port: port,
+        port: 80,
         root: 'dist/web/public'
     });
     console.log(`Listening on port ${port}`)
