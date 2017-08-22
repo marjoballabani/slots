@@ -3,12 +3,24 @@ div.row.main-container
         h3
             | Logs
             hr
-        div(
+        div.scedule-card(
             ng-repeat="event in $ctrl.history track by $index"
         )
-            label.status not avaliable
+            label.status scheduled
             label.id
-                |  {{event}}
+                |  {{event.id}}
+            label.col-md-12
+                i.fa.fa-user-circle-o
+                span
+                    |  Name: {{event.user.name}}
+            label.col-md-12
+                i.fa.fa-envelope
+                span
+                    |  Email: {{event.user.email}}
+            label.col-md-12
+                i.fa.fa-phone
+                span
+                    |  Phone: {{event.user.phone}}
 
     div.col-md-8.calendar-container.col-md-push-1
         div(

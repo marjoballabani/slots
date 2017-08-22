@@ -1,2 +1,36 @@
 div
-    | {{selectedEvent.id}}
+    form(
+        novalidate
+    )
+        div.form-group
+            label(
+                for="name"
+            ) Name
+            input.form-control(
+                type="text"
+                id="name"
+                ng-model="$ctrl.userInput.name"
+            )
+        div.form-group
+            label(
+                for="email"
+            ) Email
+            input.form-control(
+                type="text"
+                id="email"
+                ng-model="$ctrl.userInput.email"
+            )
+
+        div.form-group
+            label(
+                for="phone"
+            ) Phone
+            input.form-control(
+                type="text"
+                id="phone"
+                ng-model="$ctrl.userInput.phone"
+            )
+        button.btn.btn-default(
+            type="submit"
+            ng-click="submitForm(); closeThisDialog()"
+        ) Schedule

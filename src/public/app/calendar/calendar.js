@@ -14,6 +14,11 @@ angular
         this.selectedEvent = {}
         this.history = []
         this.events = []
+        this.userInput = {
+            name: "",
+            email: "",
+            phone: ""
+        }
 
         /**
          * Get slot list
@@ -26,26 +31,33 @@ angular
         })
 
         /**
-         * Show event form
+         * Show Popup form when event is clicked
          */
         this.showForm = (date, jsEvent, view) => {
+            this.userInput = {
+                name: "",
+                email: "",
+                phone: ""
+            }
             if (date.status) {
                 this.selectedEvent = date
                 ngDialog.open({
                     template: 'app/templates/form.html',
                     className: 'ngdialog-theme-default',
                     scope: $scope,
-                    controller: () => {
-                        this.publish()
+                    controller: ($scope) => {
+                        $scope.submitForm = () => {
+                            this.publish()
+                        }
                     }
                 });
             }
         }
 
         /**
-         * Change event status
+         * On form submit change event status
          */
-        this.changeStatus = (id) => {
+        this.changeStatus = (id, user) => {
             var tmp = this.events[0].filter((event) => {
                 return event.id == id;
             })[0]
@@ -53,11 +65,14 @@ angular
             tmp.status = false;
             uiCalendarConfig.calendars['calendar'].fullCalendar('removeEventSource', this.events[0]);
             uiCalendarConfig.calendars['calendar'].fullCalendar('addEventSource', this.events[0]);
-            this.history.push(id)
+            this.history.push({
+                id: id,
+                user: user
+            })
         }
 
         /**
-         * Generate events from slots data
+         * Generate events data from slots data
          */
         this.renderCalendar = () => {
             var tempEvents = []
@@ -77,7 +92,7 @@ angular
         }
 
         /**
-         * Subscribe to channel
+         * Subscribe to PubNub channel
          */
         Pubnub.subscribe({
             channels: ['Channel-egrothab8'],
@@ -91,7 +106,8 @@ angular
             Pubnub.publish(
                 {
                     message: {
-                        id: this.selectedEvent.id
+                        id: this.selectedEvent.id,
+                        user: this.userInput
                     },
                     channel: 'Channel-egrothab8'
                 },
@@ -106,12 +122,11 @@ angular
         }
 
         /**
-         * Do something when you get a message from PubNub
+         * Change Event status when a user make a reservation in real time
          */
         $rootScope.$on(Pubnub.getMessageEventNameFor('Channel-egrothab8'), (ngEvent, envelope) => {
             $scope.$apply(() => {
-                envelope.message.id
-                this.changeStatus(envelope.message.id)
+                this.changeStatus(envelope.message.id, envelope.message.user)
             });
         });
 
